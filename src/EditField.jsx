@@ -6,7 +6,7 @@ function EditField(props) {
   const [dataNum, setDataNum] = useState(props.dataNum);
 
   function handleChange(e) {
-    setDataNum((dataNum = e.target.value));
+    setDataNum(e.target.value);
   }
 
   return (
