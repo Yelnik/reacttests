@@ -1,3 +1,6 @@
+import React, { useState } from "react";
+import {EditField} from "./EditField"
+
 class Table extends React.Component {
     constructor(props) {
       super(props);
@@ -36,7 +39,7 @@ class Table extends React.Component {
   
       return (
         <div id="tableDiv">
-          <EditFIeld onclick={this.refreshResults} dataNum={this.state.datAmt} />
+          <EditField onclick={this.refreshResults} dataNum={this.state.datAmt} />
           <table
             className="table table-dark table-striped text-center"
             id="empTbl"
@@ -69,4 +72,4 @@ class Table extends React.Component {
     }
   }
 
-  
+  export default Table;
