@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 class App extends React.Component {
@@ -99,22 +99,21 @@ class EditWindow extends React.Component {
 class EditFIeld extends React.Component {
   constructor(props) {
     super(props);
-
     this.state = { dataNum: props.dataNum };
 
     this.handleChange = this.handleChange.bind(this);
   }
 
   handleChange(e) {
-    if (e.target.value >>> 0 !== parseFloat(e.target.value)) {
-      e.target.value = e.target.value.slice(0, -1);
-      return;
-    }
+    // if (e.target.value >>> 0 !== parseFloat(e.target.value)) {
+    //   e.target.value = e.target.value.slice(0, -1);
+    //   return;
+    // }
 
-    if (e.target.value === null) {
-      e.target.value = "";
-      return;
-    }
+    // if (e.target.value === null) {
+    //   e.target.value = "";
+    //   return;
+    // }
 
     this.setState({ dataNum: e.target.value });
   }
@@ -122,6 +121,22 @@ class EditFIeld extends React.Component {
   render() {
     return (
       <div>
+        <form>
+          <div className="form-group">
+            <label htmlFor="inputDataNum">Entries in table</label>
+            <input
+              type="number"
+              className="form-control"
+              id="inputDataNum"
+              aria-describedby="dataHelp"
+              onChange={this.handleChange}
+              placeholder="10"
+            />
+            <small id="dataHelp" className="form-text text-muted">
+              Change amount of entries in table
+            </small>
+          </div>
+        </form>
         <button
           id="refreshBtn"
           type="button"
@@ -130,22 +145,6 @@ class EditFIeld extends React.Component {
         >
           Refresh
         </button>
-        <form>
-          <div className="form-group">
-            <label htmlFor="exampleInputEmail1">Entries in table</label>
-            <input
-              type="email"
-              className="form-control"
-              id="exampleInputEmail1"
-              aria-describedby="emailHelp"
-              onChange={this.handleChange}
-              placeholder="10"
-            />
-            <small id="emailHelp" className="form-text text-muted">
-              Change amount of entries in table
-            </small>
-          </div>
-        </form>
       </div>
     );
   }
@@ -163,10 +162,19 @@ class Table extends React.Component {
     var response = await fetch(
       "https://randomuser.me/api/?results=" + this.state.datAmt
     );
+
     var data = await response.json();
     await this.setState({ tableData: data.results });
 
     console.log(this.state.tableData[0]);
+  }
+
+  rowClick(id) {
+      let list = this.state.tableData.slice();
+      let personObj = list.find(person => person.cell == id);
+      personObj.name.first = "Rick";
+      this.setState({ tableData: list });
+      console.log(personObj);
   }
 
   async refreshResults(amount) {
@@ -197,7 +205,7 @@ class Table extends React.Component {
           </thead>
           <tbody>
             {tableData.map(person => (
-              <tr key={person.cell}>
+              <tr key={person.cell} onClick={ () => this.rowClick(person.cell)}>
                 <td>{person.name.first}</td>
                 <td>{person.name.last}</td>
                 <td>{person.dob.date}</td>

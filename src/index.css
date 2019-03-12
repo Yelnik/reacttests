@@ -21,3 +21,7 @@ code {
 table th {
   text-align: center;
 }
+
+#inputDataNum {
+  width: 12% !important;
+}
