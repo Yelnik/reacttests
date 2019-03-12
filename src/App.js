@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
-import Table from './Table'
+import Table from "./Table";
 
 class App extends React.Component {
   render() {
