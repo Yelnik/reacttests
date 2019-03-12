@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {EditField} from "./EditField"
+import EditField from "./EditField"
 
 class Table extends React.Component {
     constructor(props) {
