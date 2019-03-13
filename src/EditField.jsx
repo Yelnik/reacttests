@@ -3,6 +3,16 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 
 function EditField(props) {
+
+  const [someList, updateList] = useStat({
+      firstName: "",
+      lastName: "",
+      dob: "",
+      gender: "",
+      location: "",
+      cell: "",
+      key: ""
+  })
   const [dataNum, setDataNum] = useState(props.dataNum);
 
   function handleChange(e) {

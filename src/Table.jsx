@@ -60,9 +60,7 @@ class Table extends React.Component {
     );
 
     var data = await response.json();
-    await this.setState({ tableData: data.results });
-
-    console.log(this.state.tableData[0]);
+    this.setState({ tableData: data.results });
   }
 
   rowClick(id) {
@@ -174,7 +172,6 @@ function ModalFormBody(props) {
   }
 
   function dateString(s) {
-    if (s === undefined) return;
     return new Date(s).toISOString().split("T")[0];
   }
 
