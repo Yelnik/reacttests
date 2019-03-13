@@ -13,15 +13,7 @@ class Table extends React.Component {
       tableData: [],
       datAmt: props.dataNum || "10",
       show: false,
-      editingEmp: {
-        firstName: "",
-        lastName: "",
-        dob: "",
-        gender: "",
-        location: "",
-        cell: "",
-        key: ""
-      }
+      editingEmp: {}
     };
 
     this.refreshResults = this.refreshResults.bind(this);
@@ -42,15 +34,11 @@ class Table extends React.Component {
     this.setState({ editingEmp: e, show: false });
 
     let list = this.state.tableData.slice();
-    let personObj = list.find(person => person.cell === e.key);
+    let personObj = list.find(
+      person => person.login.username === e.login.username
+    );
 
-    personObj.name.first = this.state.editingEmp.firstName;
-    personObj.name.last = this.state.editingEmp.lastName;
-    personObj.cell = this.state.editingEmp.cell;
-    personObj.dob.date = this.state.editingEmp.dob;
-    personObj.location.state = this.state.editingEmp.location;
-    personObj.gender = this.state.editingEmp.gender;
-
+    Object.assign(personObj, this.state.editingEmp);
     this.setState({ tableData: list });
   }
 
@@ -65,19 +53,11 @@ class Table extends React.Component {
 
   rowClick(id) {
     let list = this.state.tableData.slice();
-    let personObj = list.find(person => person.cell === id);
+    let personObj = list.find(person => person.login.username === id);
 
     this.setState({
       show: true,
-      editingEmp: {
-        firstName: personObj.name.first,
-        lastName: personObj.name.last,
-        dob: personObj.dob.date,
-        gender: personObj.gender,
-        location: personObj.location.city,
-        cell: personObj.cell,
-        key: id
-      }
+      editingEmp: Object.create(personObj)
     });
   }
 
@@ -130,7 +110,10 @@ class Table extends React.Component {
           </thead>
           <tbody>
             {tableData.map(person => (
-              <tr key={person.cell} onClick={() => this.rowClick(person.cell)}>
+              <tr
+                key={person.login.username}
+                onClick={() => this.rowClick(person.login.username)}
+              >
                 <td>{person.name.first}</td>
                 <td>{person.name.last}</td>
                 <td>{person.dob.date}</td>
@@ -147,31 +130,13 @@ class Table extends React.Component {
 }
 
 function ModalFormBody(props) {
-  function editFirstName(e) {
-    props.emp.firstName = e.target.value;
-  }
-
-  function editLastName(e) {
-    props.emp.lastName = e.target.value;
-  }
-
   function editDOB(e) {
-    props.emp.dob = new Date().toISOString(e.target.value);
-  }
-
-  function editLocation(e) {
-    props.emp.location = e.target.value;
-  }
-
-  function editCell(e) {
-    props.emp.cell = e.target.value;
-  }
-
-  function editGender(e) {
-    props.emp.gender = e.target.value;
+    if (e.target.value === undefined || e.target.value === "") return;
+    props.emp.dob.date = new Date(e.target.value).toISOString();
   }
 
   function dateString(s) {
+    if (s === undefined || s === "") return;
     return new Date(s).toISOString().split("T")[0];
   }
 
@@ -187,8 +152,8 @@ function ModalFormBody(props) {
           <Form.Control
             type="text"
             placeholder="First name"
-            defaultValue={props.emp.firstName}
-            onChange={editFirstName}
+            defaultValue={props.emp.name.first}
+            onChange={e => (props.emp.name.first = e.target.value)}
           />
         </Form.Group>
 
@@ -197,8 +162,8 @@ function ModalFormBody(props) {
           <Form.Control
             type="text"
             placeholder="Last name"
-            defaultValue={props.emp.lastName}
-            onChange={editLastName}
+            defaultValue={props.emp.name.last}
+            onChange={e => (props.emp.name.last = e.target.value)}
           />
         </Form.Group>
       </Form.Row>
@@ -209,7 +174,7 @@ function ModalFormBody(props) {
           <Form.Control
             type="date"
             placeholder="D.O.B"
-            defaultValue={dateString(props.emp.dob)}
+            defaultValue={dateString(props.emp.dob.date)}
             onChange={editDOB}
           />
         </Form.Group>
@@ -219,17 +184,17 @@ function ModalFormBody(props) {
           <Form.Control
             placeholder="Unspecified"
             defaultValue={props.emp.gender}
-            onChange={editGender}
+            onChange={e => (props.emp.gender = e.target.value)}
           />
         </Form.Group>
       </Form.Row>
 
       <Form.Group controlId="formGridAddress2">
-        <Form.Label>Address 2</Form.Label>
+        <Form.Label>State</Form.Label>
         <Form.Control
-          placeholder="Someplace, Someotherplace"
-          defaultValue={props.emp.location}
-          onChange={editLocation}
+          placeholder="Someplace"
+          defaultValue={props.emp.location.state}
+          onChange={e => (props.emp.location.state = e.target.value)}
         />
       </Form.Group>
 
@@ -238,7 +203,7 @@ function ModalFormBody(props) {
         <Form.Control
           placeholder="123-456-7890"
           defaultValue={props.emp.cell}
-          onChange={editCell}
+          onChange={e => (props.emp.cell = e.target.value)}
         />
       </Form.Group>
 
