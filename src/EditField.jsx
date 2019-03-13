@@ -4,7 +4,7 @@ import Form from "react-bootstrap/Form";
 
 function EditField(props) {
 
-  const [someList, updateList] = useStat({
+  const [someList, updateList] = useState({
       firstName: "",
       lastName: "",
       dob: "",
