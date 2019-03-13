@@ -9,26 +9,36 @@ import Col from "react-bootstrap/Col"
 class Table extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { tableData: [], datAmt: props.dataNum || "10", show: "false" };
+    this.state = { tableData: [], datAmt: props.dataNum || "10", show: false, editingEmp: { firstName: "", lastName: "", dob: "", gender: "", location: "", cell: "", key: "" } };
 
     this.refreshResults = this.refreshResults.bind(this);
     this.handleShow = this.handleShow.bind(this);
-
-    this.editWin = this.editWin.bind(this);
+    this.handleClose = this.handleClose.bind(this);
+    this.updateEmp = this.updateEmp.bind(this);
   }
 
   handleClose() {
-    //props.update(employee);
-    //changeShow(false);
+    this.setState({ show: false });
   }
 
   handleShow() {
-    this.setState( { show: "true" });
+    this.setState({ show: true });
   }
 
-  editWin(e) {
-    
-    //EditWindow({ emp: e, update: this.updateEmployee });
+  updateEmp(e) {
+    this.setState({ editingEmp: e, show: false });
+
+    let list = this.state.tableData.slice();
+    let personObj = list.find(person => person.cell === e.key);
+
+    personObj.name.first = this.state.editingEmp.firstName;
+    personObj.name.last = this.state.editingEmp.lastName;
+    personObj.cell = this.state.editingEmp.cell;
+    personObj.dob.date = this.state.editingEmp.dob;
+    personObj.location.state = this.state.editingEmp.location
+    personObj.gender = this.state.editingEmp.gender;
+
+    this.setState({ tableData: list });
   }
 
   async componentDidMount() {
@@ -44,16 +54,8 @@ class Table extends React.Component {
 
   rowClick(id) {
     let list = this.state.tableData.slice();
-    let personObj = list.find(person => person.cell == id);
-    this.setState({ show: "true" });
-
-    
-    // <div>
-    // <EditWindow emp={personObj} update={this.updateEmployee}/>
-    // </div>
-    // personObj.name.first = "Rick";
-    //this.setState({ tableData: list });
-    //console.log(personObj);
+    let personObj = list.find(person => person.cell === id);
+    this.setState({ show: true, editingEmp: { firstName: personObj.name.first, lastName: personObj.name.last, dob: personObj.dob.date, gender: personObj.gender, location: personObj.location.city, cell: personObj.cell, key: id } });
   }
 
   async refreshResults(amount) {
@@ -80,7 +82,7 @@ class Table extends React.Component {
             size="lg"
             aria-labelledby="contained-modal-title-vcenter"
             centered
-            show={this.show} onHide={this.handleClose}
+            show={this.state.show} onHide={this.handleClose}
           >
             <Modal.Header closeButton>
               <Modal.Title id="contained-modal-title-vcenter">
@@ -88,7 +90,7 @@ class Table extends React.Component {
             </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              {/* <ModalFormBody /> */}
+              <ModalFormBody emp={this.state.editingEmp} updateEmp={this.updateEmp} />
             </Modal.Body>
             <Modal.Footer>
               <Button onClick={this.handleClose}>Close</Button>
@@ -125,56 +127,78 @@ class Table extends React.Component {
   }
 }
 
-function ModalFormBody() {
+function ModalFormBody(props) {
+  
+  function editFirstName(e) {
+    props.emp.firstName = e.target.value;
+  }
+
+  function editLastName(e) {
+    props.emp.lastName = e.target.value;
+  }
+
+  function editDOB(e) {
+    props.emp.dob = new Date().toISOString(e.target.value);
+  }
+
+  function editLocation(e){
+    props.emp.location = e.target.value;
+  }
+
+  function editCell(e) {
+    props.emp.cell = e.target.value;
+  }
+
+  function editGender(e) {
+    props.emp.gender = e.target.value;
+  }
+
+  function dateString(s) {
+    if (s === undefined) return;
+    return new Date(s).toISOString().split('T')[0];
+  }
+
+  function saveEmp() {
+    props.updateEmp(props.emp);
+  }
+
   return (
     <Form>
       <Form.Row>
         <Form.Group as={Col} controlId="formGridEmail">
-          <Form.Label>Email</Form.Label>
-          <Form.Control type="email" placeholder="Enter email" />
+          <Form.Label>First Name</Form.Label>
+          <Form.Control type="text" placeholder="First name" defaultValue={props.emp.firstName} onChange={editFirstName} ></Form.Control>
         </Form.Group>
 
         <Form.Group as={Col} controlId="formGridPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control type="password" placeholder="Password" />
+          <Form.Label>Last Name</Form.Label>
+          <Form.Control type="text" placeholder="Last name" defaultValue={props.emp.lastName}  onChange={editLastName} />
         </Form.Group>
       </Form.Row>
 
-      <Form.Group controlId="formGridAddress1">
-        <Form.Label>Address</Form.Label>
-        <Form.Control placeholder="1234 Main St" />
-      </Form.Group>
+      <Form.Row>
+        <Form.Group as={Col} controlId="formGridDOB">
+          <Form.Label>Date of Birth</Form.Label>
+          <Form.Control type="date" placeholder="D.O.B" defaultValue={dateString(props.emp.dob)} onChange={editDOB}/>
+        </Form.Group>
+
+        <Form.Group as={Col} controlId="fromGridGender">
+          <Form.Label>Gender</Form.Label>
+          <Form.Control placeholder="Unspecified" defaultValue={props.emp.gender} onChange={editGender}  />
+        </Form.Group>
+      </Form.Row>
 
       <Form.Group controlId="formGridAddress2">
         <Form.Label>Address 2</Form.Label>
-        <Form.Control placeholder="Apartment, studio, or floor" />
+        <Form.Control placeholder="Someplace, Someotherplace" defaultValue={props.emp.location} onChange={editLocation}/>
       </Form.Group>
 
-      <Form.Row>
-        <Form.Group as={Col} controlId="formGridCity">
-          <Form.Label>City</Form.Label>
-          <Form.Control />
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formGridState">
-          <Form.Label>State</Form.Label>
-          <Form.Control as="select">
-            <option>Choose...</option>
-            <option>...</option>
-          </Form.Control>
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formGridZip">
-          <Form.Label>Zip</Form.Label>
-          <Form.Control />
-        </Form.Group>
-      </Form.Row>
-
-      <Form.Group id="formGridCheckbox">
-        <Form.Check type="checkbox" label="Check me out" />
+      <Form.Group controlId="formGridCell">
+        <Form.Label>Cell #</Form.Label>
+        <Form.Control placeholder="123-456-7890" defaultValue={props.emp.cell} onChange={editCell}/>
       </Form.Group>
 
-      <Button variant="primary" type="submit">
+      <Button variant="primary" onClick={saveEmp}>
         Submit
   </Button>
     </Form>
